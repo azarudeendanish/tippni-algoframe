@@ -31,7 +31,6 @@ export default function ProfileInfo() {
           console.error("No token found")
           return
         }
-
         const res = await api.get("/api/v1/profiles/me", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,6 +47,9 @@ export default function ProfileInfo() {
 
     fetchProfile()
   }, [])
+  const handleChangeBanner = async() => {
+
+  }
   if (loading) {
     return <div className="px-4 py-6 text-sm text-muted-foreground flex justify-center items-center">Loading profile...</div>
   }
@@ -59,19 +61,19 @@ export default function ProfileInfo() {
     <div className="">
       <div className="px-4 py-4">
         {/* Avatar */}
-        <div className="flex items-start justify-between -mt-16 mb-4">
+        <div className="flex items-start justify-between -mt-20 mb-4">
           <Avatar className="size-32 border-4 border-background">
             <AvatarImage src={profile.avatarUrl || "/images/tippniLogo.jpg"} alt={profile.name} />
             <AvatarFallback>{profile.name?.[0] || "U"}</AvatarFallback>
           </Avatar>
-          <Button variant="outline" className="rounded-full bg-transparent">
-            Follow
+          <Button variant="outline" className="rounded-full bg-transparent self-end" onClick={handleChangeBanner}>
+            Edit Profile
           </Button>
         </div>
 
         {/* Name and Handle */}
         <div className="mb-2">
-          <h1 className="text-2xl font-bold">{profile.name}</h1>
+          <h1 className="text-2xl font-bold">{profile.username}</h1>
           <p className="text-muted-foreground">@{profile.username}</p>
         </div>
 
