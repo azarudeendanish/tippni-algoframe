@@ -42,7 +42,7 @@ body {
     --bg-secondary: rgba(42, 163, 239, 0.04);
     --color-muted: #6b7280;
     --color-bg: #eff6fa;
-    --color-border: #e5e7eb;
+    --color-border: #d1d5dc;
   }
 
   .dark {
@@ -53,7 +53,7 @@ body {
     --bg-secondary: rgba(42, 163, 239, 0.04);
     --color-muted: #9ca3af;
     --color-bg: #1a3649;
-    --color-border: #374151;
+    --color-border: #e5e7eb;
   }
 
   /* body {

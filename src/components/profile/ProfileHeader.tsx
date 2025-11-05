@@ -4,7 +4,11 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
-export default function ProfileHeader() {
+interface ProfileHeaderProps {
+  username: string
+}
+
+export default function ProfileHeader({username}: ProfileHeaderProps) {
   const router = useRouter()
 
   return (
@@ -13,7 +17,7 @@ export default function ProfileHeader() {
         <ArrowLeft className="size-5" aria-hidden />
       </Button>
       <div>
-        <h2 className="text-xl font-bold">Kew Coder</h2>
+        <h2 className="text-xl font-bold">{username}</h2>
         <p className="text-xs text-muted-foreground">1,234 posts</p>
       </div>
     </div>
