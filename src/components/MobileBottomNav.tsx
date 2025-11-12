@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, User, Bell, Settings, Feather } from "lucide-react"
 import { useState } from "react"
-import TippniModal from "./TippniModal"
+import TippniModal from "./modals/TippniModal"
 import MenuLogo from "../../public/images/tippniLogo.png";
 import Image from "next/image"
 
@@ -35,7 +35,7 @@ export default function MobileBottomNav() {
                 className="flex items-center justify-center w-20 h-20 rounded-full bg-transparent text-primary-foreground hover:bg-primary/90 -mt-10"
                 aria-label="tippni"
               >
-                <Image width={100} height={100} alt='image' src={MenuLogo} />
+                <Image width={100} height={100} alt='image' src={MenuLogo} priority />
               </button>
             )
           }

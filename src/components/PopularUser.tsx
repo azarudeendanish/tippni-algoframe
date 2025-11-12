@@ -26,10 +26,10 @@ export default function PopularUser() {
                 {whoToFollow.map((p) => (
                     <li key={p.handle} className="flex items-center justify-between gap-3 px-4 py-3">
                         <div className="flex min-w-0 items-center gap-3">
-                            <Avatar className="size-9 hidden">
-                            <AvatarImage src="/popular-user-avatar.jpg" alt={`${p.name} avatar`} />
-                            <AvatarFallback>{p.initials}</AvatarFallback>
-                            </Avatar>
+                            {/* <Avatar className="size-9 hidden">
+                                <AvatarImage src="/popular-user-avatar.jpg" alt={`${p.name} avatar`} />
+                                <AvatarFallback>{p.initials}</AvatarFallback>
+                            </Avatar> */}
                             <div className="min-w-0">
                             <div className="truncate text-sm font-medium leading-none">{p.name}</div>
                             <div className="truncate text-xs text-muted-foreground hidden">{p.handle}</div>

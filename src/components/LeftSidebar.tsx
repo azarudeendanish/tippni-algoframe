@@ -7,12 +7,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/store"
 import { setPage } from "@/store/pageSlice"
 import { useState } from "react"
-import TippniModal from "./TippniModal"
+import TippniModal from "./modals/TippniModal"
 import WhiteLogo from "../../public/images/tippniLogoDark.png";
 import DarkLogo from "../../public/images/tippniLogoLight.png";
 import Image from "next/image"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
+import { signOut } from "next-auth/react"
+
 
 // ---------- ICONS ----------
 
@@ -80,7 +82,7 @@ export default function LeftSidebar({onSetSignup}: LeftSidebarProps) {
           <div aria-hidden className="size-9 rounded-full bg-primary hidden" />
           <span className="text-lg font-semibold">Tippni</span>
         </div>
-        <Image width={120} height={120} src={theme === 'light' ? DarkLogo : WhiteLogo} alt="logo" />
+        <Image width={120} height={120} src={theme === 'light' ? DarkLogo : WhiteLogo} alt="logo" priority />
       </div>
       <div className="md:w-60">
         <nav className="space-y-1">
@@ -115,7 +117,17 @@ export default function LeftSidebar({onSetSignup}: LeftSidebarProps) {
 
       {/* Footer (optional quick links) */}
       <div className="mt-6 text-xs text-muted-foreground">
-        <Button onClick={()=> onSetSignup(true)} className="w-50 rounded-full text-white cursor-pointer p-2 bg-secondary text-primary border border-primary" size="lg">Logout</Button>
+      <Button
+        onClick={() => {
+          signOut({ redirect: false }) // prevent full page reload
+          toast.success("👋 Logged out successfully!")
+          onSetSignup(true) // return to AuthContainer flow if needed
+        }}
+        className="w-50 rounded-full cursor-pointer p-2 bg-secondary text-primary border border-primary hover:bg-accent hover:text-white transition-all"
+        size="lg"
+      >
+        Logout
+      </Button>
         <p className="hidden">© {new Date().getFullYear()} Chatter</p>
       </div>
     </div>

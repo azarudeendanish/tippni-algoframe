@@ -12,12 +12,12 @@ export default function ProfileHeader({username}: ProfileHeaderProps) {
   const router = useRouter()
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3">
-      <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Go back">
+    <div className="flex items-center gap-4 py-3">
+      <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Go back" className="">
         <ArrowLeft className="size-5" aria-hidden />
       </Button>
       <div>
-        <h2 className="text-xl font-bold">{username}</h2>
+        <h2 className="text-xl font-bold capitalize">{username}</h2>
         <p className="text-xs text-muted-foreground">1,234 posts</p>
       </div>
     </div>

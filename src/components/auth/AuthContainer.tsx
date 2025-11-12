@@ -1,55 +1,81 @@
+// /src/components/auth/AuthContainer.tsx
 "use client"
 
-import { useState } from "react"
-import HomePage from "../homepage/HomePage"
-
-type AuthStep = "login" | "register" | "otp" | "authenticated"
-
-interface UserData {
-  username: string
-  email: string
-  password: string
-}
+import { useSession, signIn } from "next-auth/react"
+import { useEffect, useState } from "react"
+import SignupPage from "./SignupPage"
+import SigninModal from "../modals/SigninModal"
+import { toast } from "sonner"
+import OtpVerification from "../modals/OtpVerification"
+import { api } from "@/lib/axios"
 
 export default function AuthContainer() {
-  const [authStep, setAuthStep] = useState<AuthStep>("login")
-  const [userData, setUserData] = useState<UserData | null>(null)
+  const { data: session, status } = useSession()
+  const [showSignup, setShowSignup] = useState(true)
+  const [showSignin, setShowSignin] = useState(false)
+  const [showOtp, setShowOtp] = useState(false)
+  const [userEmail, setUserEmail] = useState("")
 
-  const handleLoginSuccess = () => {
-    setAuthStep("authenticated")
+  // --- Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      // do nothing — HomePage will show from parent
+    }
+  }, [status, session])
+
+  // --- OAuth signup
+  const handleOAuthSignup = async (provider: "google" | "apple") => {
+    toast.loading(`Redirecting to ${provider}...`)
+    await signIn(provider)
   }
 
-  const handleRegisterSubmit = (data: UserData) => {
-    setUserData(data)
-    setAuthStep("otp")
+  // --- Email signup
+  const handleEmailSignup = async (formData: any) => {
+    try {
+      const res = await api.post("/api/v1/auth/register", formData)
+      toast.success("Signup successful! Please verify your OTP.")
+      setUserEmail(formData.email)
+      setShowOtp(true)
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Signup failed.")
+    }
   }
 
-  const handleOtpVerification = () => {
-    setAuthStep("authenticated")
+  // --- OTP verification success
+  const handleOtpVerifySuccess = () => {
+    toast.success("✅ Account verified! Please sign in.")
+    setShowOtp(false)
+    setShowSignup(false)
+    setShowSignin(true) // ✅ open SigninModal next
   }
 
-  const handleSwitchToRegister = () => {
-    setAuthStep("register")
-  }
+  if (status === "loading") return <div>Loading...</div>
 
-  const handleSwitchToLogin = () => {
-    setAuthStep("login")
-  }
-
-  if (authStep === "authenticated") {
-    return <HomePage />
-  }
+  if (session?.user) return null // HomePage shown by parent
 
   return (
-    <div>
-      {authStep === "login" && (
-        <LoginForm onLoginSuccess={handleLoginSuccess} onSwitchToRegister={handleSwitchToRegister} />
-      )}
-      {authStep === "register" && (
-        <RegisterForm onRegisterSubmit={handleRegisterSubmit} onSwitchToLogin={handleSwitchToLogin} />
-      )}
-      {authStep === "otp" && userData && (
-        <OtpVerification email={userData.email} onVerificationSuccess={handleOtpVerification} />
+    <div className="flex flex-col items-center justify-center min-h-screen p-6">
+      {/* OTP Verification */}
+      {showOtp ? (
+        <OtpVerification email={userEmail} onVerificationSuccess={handleOtpVerifySuccess} />
+      ) : showSignup ? (
+        <SignupPage
+          onSignupGoogle={() => handleOAuthSignup("google")}
+          onSignupApple={() => handleOAuthSignup("apple")}
+          onSwitchToSignin={() => {
+            setShowSignup(false)
+            setShowSignin(true)
+          }}
+        />
+      ) : (
+        <SigninModal
+          open={showSignin}
+          onOpenChange={setShowSignin}
+          openSignup={showSignup}
+          onOpenChangeSignup={setShowSignup}
+          onSignup={showSignup}
+          onSetSignup={setShowSignup}
+        />
       )}
     </div>
   )

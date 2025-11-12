@@ -1,16 +1,15 @@
-// SigninModal.tsx
+// /src/components/modals/SigninModal.tsx
 "use client"
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, Calendar, Lock, Mail, User, UserCircle2 } from "lucide-react"
+import { Lock, Mail } from "lucide-react"
 import { useState } from "react"
 import { DialogOverlay } from "@radix-ui/react-dialog"
 import { Input } from "../ui/input"
-import { cn } from "@/lib/utils"
-import ForgotPasswordModal from "../settings/ForgotPasswordModal"
+import ForgotPasswordModal from "./ForgotPasswordModal"
 import { toast } from "sonner"
-import { api } from "@/lib/axios"
+import { signIn } from "next-auth/react" // ✅ import NextAuth signIn
 
 interface SigninModalProps {
   open: boolean
@@ -40,14 +39,7 @@ const Apple = () => (
   </>
 )
 export default function SigninModal({ open, onOpenChange, openSignup, onOpenChangeSignup, onSignup, onSetSignup }: SigninModalProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    dob: "",
-    gender: "",
-  })
+  const [formData, setFormData] = useState({ email: "", password: "" })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -55,150 +47,135 @@ export default function SigninModal({ open, onOpenChange, openSignup, onOpenChan
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.email.trim()) newErrors.email = "Email is required"
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "Please enter a valid email"
-    }
-    if (!formData.password) {
-      newErrors.password = "Password is required"
-    } else if (formData.password.length < 8) {
+    if (!formData.password) newErrors.password = "Password is required"
+    else if (formData.password.length < 8)
       newErrors.password = "Password must be at least 8 characters"
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }))
   }
 
   const handleSignin = async (e: React.FormEvent) => {
-    
-    
     e.preventDefault()
-    if (!validateForm()) {
-      console.log('validation error', errors);
-      return
-    }
-    console.log('loggedin');
+    if (!validateForm()) return
     setIsLoading(true)
+
     try {
-      console.log("🔐 Signing in with:", formData)
-    
-      // ✅ Send credentials to backend API
-      const res = await api.post("/api/v1/auth/authenticate", {
+      console.log('before signin =>>>>');
+      
+      // ✅ use NextAuth credentials provider
+      const res = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
+        redirect: false, // don’t navigate
       })
-    
-      console.log("✅ Signin success:", res.data)
-      toast.success("✅ Signed in successfully!")
-    
-      // ✅ Close modal and show main feed
+      console.log('res signin Modal=> ', res);
+      
+      if (res?.error) {
+        toast.error(res.error)
+        return
+      }
+
+      if (res?.ok && !res.error) {
+        toast.success("✅ Signed in successfully!")
+        onSetSignup(false)
+        onOpenChange(false)
+      } else {
+        toast.error("⚠️ No session created. Check NextAuth logs.")
+      }
+
+      // ✅ Close modal → parent will rerender HomePage (via useSession)
       onSetSignup(false)
       onOpenChange(false)
     } catch (err: any) {
-      console.error("❌ Signin failed:", err)
-    
-      // ✅ Safely extract backend message
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Invalid email or password."
-    
-      setErrors({ submit: message })
-      toast.error(`❌ ${message}`)
+      toast.error("❌ Signin failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
   }
-  const handleOAuthSignin = (provider: string) => {
-    console.log(`Signing up with ${provider}`)
-    toast.warning('Still in work Login Loading for Auth')
-    // Implement OAuth logic here
+
+  const handleOAuthSignin = async (provider: "google" | "apple") => {
+    toast.loading(`Redirecting to ${provider}...`)
+    await signIn(provider)
   }
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity data-[state=open]:animate-in data-[state=closed]:animate-out" />
-        <DialogContent className="max-w border-0 bg-modal text-primary p-6 transition-colors duration-300">
+        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
+        <DialogContent className="max-w border-0 bg-modal text-primary p-6 rounded-xl">
           <DialogHeader>
-            <div className="flex items-center gap-2">
-              <DialogTitle className="text-lg font-semibold text-primary">
-                Signin to your account
-              </DialogTitle>
-            </div>
+            <DialogTitle className="text-lg font-semibold text-center">
+              Sign in to your account
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <Button
-                onClick={() => handleOAuthSignin("Google")}
-                variant="outline"
-                className="w-full rounded-full m-auto h-11 flex items-center justify-center gap-2 mb-2"
-            >
-                <Chrome />
-                <span>Sign in with Google</span>
-            </Button>
-            <Button
-                onClick={() => handleOAuthSignin("Apple")}
-                variant="outline"
-                className="w-full rounded-full m-auto h-11 flex items-center justify-center gap-2"
-            >
-                <Apple />
-                <span>Sign in with Apple</span>
-            </Button>
-            </div>
 
-            {/* Divider */}
-            <div className="relative">
+          {/* OAuth */}
+          <div className="space-y-3 mb-4">
+            <Button
+              onClick={() => handleOAuthSignin("google")}
+              variant="outline"
+              className="w-full rounded-full h-11 flex items-center justify-center gap-2"
+            >
+              <Chrome />
+              <span>Sign in with Google</span>
+            </Button>
+            <Button
+              onClick={() => handleOAuthSignin("apple")}
+              variant="outline"
+              className="w-full rounded-full h-11 flex items-center justify-center gap-2"
+            >
+              <Apple />
+              <span>Sign in with Apple</span>
+            </Button>
+          </div>
+
+          {/* Divider */}
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-background text-primary bg-modal w-[40px] h-[40px] flex justify-center items-center rounded-full">OR</span>
+              <span className="px-2 bg-modal text-muted-foreground">OR</span>
             </div>
-            </div>
-          <form onSubmit={handleSignin} className="space-y-4 mb-6">
-            <div>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email address"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="pl-10 h-11 rounded-md"
-                />
-              </div>
+          </div>
+
+          {/* Email/Password form */}
+          <form onSubmit={handleSignin} className="space-y-4">
+            <div className="relative">
+              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="email"
+                name="email"
+                placeholder="Email address"
+                value={formData.email}
+                onChange={handleChange}
+                className="pl-10 h-11 rounded-md"
+              />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
-            <div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="pl-10 h-11 rounded-md"
-                />
-              </div>
+
+            <div className="relative">
+              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
+              <Input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="pl-10 h-11 rounded-md"
+              />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
-            <div className="flex justify-between">
+
+            <div className="flex justify-between items-center">
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input
                   type="checkbox"
@@ -209,38 +186,35 @@ export default function SigninModal({ open, onOpenChange, openSignup, onOpenChan
                 <span className="text-muted-foreground">Show password</span>
               </label>
               <Button
-                    onClick={() => setForgotPasswordOpen(true)}
-                    variant="link"
-                    className="w-fit rounded-full h-3 text-accent px-2 cursor-pointer"
-                    size="sm"
-                >
-                    <span>Forgot Password</span>
+                onClick={() => setForgotPasswordOpen(true)}
+                variant="link"
+                className="text-accent text-sm"
+              >
+                Forgot Password?
               </Button>
             </div>
 
-            {errors.submit && <p className="text-red-500 text-sm">{errors.submit}</p>}
             <DialogFooter>
-            <Button
-              // onClick={()=> onSetSignup(false)}
-              type="submit"
-              disabled={isLoading}
-              className="w-50 h-11 font-semibold flex bg-accent m-auto rounded-full"
-            >
-              {isLoading ? "Submitting..." : "Submit"}
-            </Button>
-            </DialogFooter>
-            
-            <div className="text-center flex justify-center items-center">
-              <div className="text-sm text-primary">
-                  Don't have an account?
-              </div>
               <Button
-                  onClick={() => {onOpenChange(false), onOpenChangeSignup(true)}}
-                  variant="link"
-                  className="w-fit rounded-full h-11 text-accent px-2 cursor-pointer"
-                  size="sm"
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-11 font-semibold bg-accent rounded-full"
               >
-                  <span>Signup</span>
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+            </DialogFooter>
+
+            <div className="text-center text-sm mt-4 text-muted-foreground">
+              Don’t have an account?{" "}
+              <Button
+                onClick={() => {
+                  onOpenChange(false)
+                  onOpenChangeSignup(true)
+                }}
+                variant="link"
+                className="text-accent px-1"
+              >
+                Sign up
               </Button>
             </div>
           </form>

@@ -1,38 +1,18 @@
-// home.tsx
+// /src/app/page.tsx
 "use client"
-import AvatarsRow from "@/components/feed/AvatarRow";
-import PostCard from "@/components/feed/PostCard";
-import SearchBar from "@/components/feed/SearchBar";
-import LeftSidebar from "@/components/LeftSidebar";
-import ProfilePage from "@/components/profile/ProfilePage";
-import RightSidebar from "@/components/RightSidebar";
-import { useSelector } from "react-redux"
-import { RootState } from "@/store"
-import SettingsPage from "@/components/settings/SettingsPage";
-import { useState } from "react";
-import SignupPage from "@/components/auth/SignupPage";
+import { useSession } from "next-auth/react"
 import ThemeToggle from "@/components/ThemeToggle";
-import MobileBottomNav from "@/components/MobileBottomNav";
 import HomePage from "@/components/homepage/HomePage";
+import AuthContainer from "@/components/auth/AuthContainer";
+import { Loader } from "@/components/ui/loader";
 
 export default function Home() {
-  const activePage = useSelector((state: RootState) => state.page.activePage)
-  const [signup, setSignup] = useState(false)
+  const { data: session, status } = useSession()
+  if (status === "loading") return <div className="min-h-dvh pb-20 lg:pb-0 flex justify-center items-center"><Loader /></div>
   return (
     <div className="min-h-dvh pb-20 lg:pb-0">
-      <div className="mx-auto max-w-7xl">
-        <div className="fixed bottom-18 right-5 z-99"><ThemeToggle /></div>
-        {signup ?
-          <>
-            <SignupPage onSignup={signup} onSetSignup={setSignup} />
-          </>
-          :
-          <>
-            <HomePage />
-          </>
-        }
-        
-      </div>
+      <div className="fixed bottom-18 right-5 z-99"><ThemeToggle /></div>
+      {session?.user ? <HomePage /> : <AuthContainer />}
     </div>
   )
 }

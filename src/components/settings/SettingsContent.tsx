@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 import { Lock, Bell, Eye, LogOut, Moon, Scale } from "lucide-react"
-import ChangePasswordModal from "./ChangePasswordModal"
-import DeactivateAccountModal from "./DeactivateAccountModal"
-import DeleteAccountModal from "./DeleteAccountModal"
-// import Enable2FAModal from "./Enable2FAModal"
+import DeactivateAccountModal from "../modals/DeactivateAccountModal"
+import DeleteAccountModal from "../modals/DeleteAccountModal"
+import ChangePasswordModal from "../modals/ChangePasswordModal"
 
 interface SettingsContentProps {
   activeTab: string

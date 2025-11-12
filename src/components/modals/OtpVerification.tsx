@@ -1,4 +1,4 @@
-// OtpVerification.tsx
+// /src/components/modals/OtpVerification.tsx
 "use client"
 
 import type React from "react"
@@ -10,6 +10,7 @@ import WhiteLogo from "../../../public/images/tippniLogoDark.png";
 import DarkLogo from "../../../public/images/tippniLogoLight.png";
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
+import { api } from "@/lib/axios"
 
 interface OtpVerificationProps {
   email: string
@@ -52,36 +53,44 @@ export default function OtpVerification({ email, onVerificationSuccess }: OtpVer
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const otpString = otp.join("")
-
+  
     if (otpString.length !== 6) {
       setError("Please enter all 6 digits")
       return
     }
-
+  
     setIsSubmitting(true)
     setError("")
-
+  
     try {
-      console.log("Activating account with:", { email, otp: otpString })
+      console.log("🔐 Activating account with:", { email, otp: otpString })
     
-      const res = await apiFetch(`/api/v1/auth/activate?activationCode=${otpString}`, {
-        method: "POST",
+      // ✅ Use your configured axios instance
+      const res = await api.get(`/api/v1/auth/activate`, {
+        params: { activationCode: otpString },
       })
     
-      console.log("Activation success:", res)
-      toast.success("✅ Account activated successfully!, please login")
+      console.log("✅ Activation success:", res.data)
+      toast.success(res.data.message || "✅ Account activated successfully!")
     
+      // ✅ Trigger AuthContainer callback
       onVerificationSuccess()
     } catch (err: any) {
-      console.error("Activation failed:", err)
-      const message = err.message || "Invalid OTP. Please try again."
+      console.error("❌ Activation failed:", err)
+    
+      // ✅ Cleanly extract server message if available
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Invalid OTP. Please try again."
+    
       setError(message)
       toast.error(`❌ ${message}`)
     } finally {
       setIsSubmitting(false)
-      console.log("Activation request completed.")
     }
   }
+  
 
   const handleResendOtp = async () => {
     setOtp(["", "", "", "", "", ""])
@@ -103,7 +112,7 @@ export default function OtpVerification({ email, onVerificationSuccess }: OtpVer
     <>
       <div className="text-center">
         <div className="inline-flex items-center justify-center hidden">
-          <Image src={theme === 'light' ? DarkLogo : WhiteLogo} width={150} height={100} alt='Logo' />
+          <Image src={theme === 'light' ? DarkLogo : WhiteLogo} width={150} height={100} alt='Logo' priority/>
         </div>
       </div>
 

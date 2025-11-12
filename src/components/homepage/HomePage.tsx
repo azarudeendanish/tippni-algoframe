@@ -1,5 +1,5 @@
 
-// homePage.tsx
+// /src/components/homepage/HomePage.tsx
 "use client"
 
 import { useSelector } from "react-redux"
@@ -21,12 +21,9 @@ export default function HomePage() {
   return (
     <>
         <div className="grid grid-cols-12 gap-6 px-4 py-4">
-        {/* Left Sidebar */}
             <aside className="sticky top-0 h-screen hidden md:block col-span-3 ">
             <LeftSidebar onSetSignup={setSignup} />
             </aside>
-
-            {/* Feed */}
             <main className="col-span-12 md:col-span-6">
             <div className="">
             {/* <div className="sticky top-0 z-10 backdrop-blur"> */}
