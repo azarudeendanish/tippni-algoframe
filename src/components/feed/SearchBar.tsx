@@ -1,21 +1,35 @@
+// src/components/feed/SearchBar.tsx
 "use client"
 
 import { Input } from "@/components/ui/input"
 import { Search, X } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { SearchResultsDropdown } from "./SearchResultsDropdown"
 
 export default function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  
   useEffect(() => {
     const stored = localStorage.getItem("recentSearches")
     if (stored) {
       setRecentSearches(JSON.parse(stored))
     }
   }, [])
-
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+  
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+  
   const handleSearch = (query: string) => {
     setSearchQuery(query)
     if (query.trim()) {
@@ -33,7 +47,7 @@ export default function SearchBar() {
   }
   return (
     <>
-      <div className="relative">
+      <div className="relative" ref={wrapperRef}>
       <Search
         className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden
@@ -45,7 +59,7 @@ export default function SearchBar() {
         <Input
           id="search"
           placeholder="Search"
-          className="pl-11 rounded-full shadow-none border-none h-[51px]" style={{color: '#436475', backgroundColor: 'rgba(42, 163, 239, 0.04)'}}
+          className="pl-11 rounded-full shadow-none border-none h-[51px] bg-secondary text-muted-foreground"
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setIsOpen(true)}
@@ -73,16 +87,5 @@ export default function SearchBar() {
       )}
     </div>
     </>
-    // <div className="relative">
-    //   <Search
-    //     className="pointer-events-none absolute left-5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground rounded-xl"
-    //     aria-hidden
-    //     style={{color: '#436475'}}
-    //   />
-    //   <label className="sr-only" htmlFor="search">
-    //     Search
-    //   </label>
-    //   <Input id="search" placeholder="Search" className="pl-11 rounded-full shadow-none border-none h-[51px]" style={{color: '#436475', backgroundColor: 'rgba(42, 163, 239, 0.04)'}} />
-    // </div>
   )
 }

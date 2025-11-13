@@ -1,3 +1,4 @@
+// src/components/profile/ProfilePage.tsx
 "use client"
 import ProfileHeader from "./ProfileHeader";
 import ProfileInfo from "./ProfileInfo";

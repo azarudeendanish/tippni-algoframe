@@ -15,21 +15,23 @@ const profiles = [
 
 export default function AvatarsRow() {
   return (
-    <div className="flex items-center justify-between gap-4 pb-1 pt-1 flex-wrap">  
+    <div className="flex items-center justify-start gap-4">  
     {/* dont need flex wrap, but hide from last when screen resize */}
-      <div className="flex flex-col items-center">
-          <div className="relative flex justify-center items-center size-8 shrink-0 overflow-hidden rounded-full" style={{background: '#426374', height: '48px', width: '48px'}}>
-            <Plus className="w-4 rounded-full size-4 bg-accent text-bold " style={{color: '#426374'}} />
+      <div className="flex flex-col items-center shrink-0">
+        <div className="relative flex justify-center items-center size-8 shrink-0 overflow-hidden rounded-full" style={{background: '#426374', height: '48px', width: '48px'}}>
+          <Plus className="w-4 rounded-full size-4 bg-accent text-bold " style={{color: '#426374'}} />
+        </div>
+      </div>
+      <div className="flex items-center justify-start gap-4 pb-1 pt-1 overflow-x-auto scrollbar-hide whitespace-nowrap">
+        {profiles.map((p, idx) => (
+          <div key={idx} className="flex flex-col items-center">
+            <Avatar className="size-12 ring-1 ring-border">
+              <AvatarImage src={p.src || "/placeholder.svg"} alt={p.alt} />
+              <AvatarFallback>{p.initials}</AvatarFallback>
+            </Avatar>
           </div>
-        </div>
-      {profiles.map((p, idx) => (
-        <div key={idx} className="flex flex-col items-center">
-          <Avatar className="size-12 ring-1 ring-border">
-            <AvatarImage src={p.src || "/placeholder.svg"} alt={p.alt} />
-            <AvatarFallback>{p.initials}</AvatarFallback>
-          </Avatar>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

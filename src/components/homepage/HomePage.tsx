@@ -26,15 +26,17 @@ export default function HomePage() {
             </aside>
             <main className="col-span-12 md:col-span-6">
             <div className="">
-            {/* <div className="sticky top-0 z-10 backdrop-blur"> */}
-                <div className="py-3">
-                <SearchBar />
-                <div className="mt-3"><AvatarsRow /></div>
-                </div>
-            </div>
+                    {/* <div className="sticky top-0 z-10 backdrop-blur"> */}
+                        <div className="py-3">
+                        <SearchBar />
+                        <div className="mt-3"><AvatarsRow /></div>
+                        </div>
+                    </div>
             <>
                 {activePage === "home" && 
-                <div className="py-4 space-y-6">
+                <>
+                    
+                    <div className="py-4 space-y-6">
                     <PostCard
                     username="Alex Johnson"
                     handle="@alexj"
@@ -54,6 +56,7 @@ export default function HomePage() {
                     imageSrc="/images/design-system-presentation.png"
                     />
                 </div>
+                </>
                 }
                 {activePage === "profile" && <ProfilePage />}
                 {activePage === "foryou" && <div>For You content here</div>}
