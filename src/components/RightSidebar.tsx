@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Settings } from "lucide-react"
 import Trending from "@/components/Trending"
 import PopularUser from "@/components/PopularUser"
-import ThemeToggle from "./ThemeToggle"
+import LanguageSwitch from "./languageSelector/LanguageSwitch"
 
 const whoToFollow = [
   { name: "Jamie Lee", handle: "@jamie", initials: "JL" },
@@ -17,7 +17,6 @@ const whoToFollow = [
 export default function RightSidebar() {
   return (
     <div className="flex h-[calc(100dvh-2rem)] flex-col gap-6">
-      {/* User bar */}
       <Card className="p-3 border-none shadow-none bg-transparent">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -30,17 +29,14 @@ export default function RightSidebar() {
               <div className="text-xs text-muted-foreground truncate">@kewcoder</div>
             </div>
           </div>
-          <Button variant="ghost" size="icon" aria-label="Settings">
+          <LanguageSwitch />
+          <Button variant="ghost" size="icon" aria-label="Settings" className="hidden">
             <Settings className="size-5" style={{color: '#436475'}} aria-hidden />
           </Button>
         </div>
       </Card>
-
-      {/* Trending today */}
       <Trending />
       <PopularUser />
-      {/* Popular users / Who to follow */}
-      {/* <ThemeToggle /> */}
     </div>
   )
 }

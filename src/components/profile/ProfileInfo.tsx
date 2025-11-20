@@ -44,6 +44,7 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
   }, [])
   const fetchProfile = async () => {
     try {
+      setLoading(true)
       const res = await api.get("/api/v1/profiles/me")
       setProfile(res.data.data || res.data)
       toast.success("✅ Profile loaded successfully!")

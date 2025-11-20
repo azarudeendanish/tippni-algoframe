@@ -8,6 +8,7 @@ import SigninModal from "../modals/SigninModal"
 import { toast } from "sonner"
 import OtpVerification from "../modals/OtpVerification"
 import { api } from "@/lib/axios"
+import LanguageSwitch from "../languageSelector/LanguageSwitch"
 
 export default function AuthContainer() {
   const { data: session, status } = useSession()
@@ -55,7 +56,7 @@ export default function AuthContainer() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      {/* OTP Verification */}
+      <div className="fixed top-10 right-5 z-99"><LanguageSwitch /></div>
       {showOtp ? (
         <OtpVerification email={userEmail} onVerificationSuccess={handleOtpVerifySuccess} />
       ) : showSignup ? (

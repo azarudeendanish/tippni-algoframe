@@ -187,6 +187,7 @@ const LanguageSwitch = () => {
         onClick={handleButtonClick}
         type="button"
         className="flex items-center gap-1 p-1 rounded-full bg-accent-primary-hex cursor-pointer"
+        style={{color: '#436475'}}
       >
         <Globe className="w-6 h-6 accent" />
         <span className="text-sm font-medium accent uppercase">

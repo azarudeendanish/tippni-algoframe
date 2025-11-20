@@ -145,7 +145,7 @@ export function SearchResultsDropdown({
                 onClick={() => toggleFollow(user.id)}
                 variant="secondary"
                 size="sm"
-                className="flex-shrink-0"
+                className="flex-shrink-0 hidden"
               >
                 {followingState[user.id] ? "Following" : "Follow"}
               </Button>

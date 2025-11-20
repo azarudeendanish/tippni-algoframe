@@ -29,7 +29,8 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isPosting, setIsPosting] = useState(false)
   const { data: session } = useSession()
-
+  console.log('token from Tippni modal', session?.user?.token);
+  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -104,30 +105,155 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
       setIsPosting(false)
     }
   }
-  const handlePost = async () => {
-    console.log('form works');
+  // const handlePost = async () => {
+  //   console.log('form works');
     
-    const formData = new FormData();
+  //   const formData = new FormData();
+  //   const jsonBlob = new Blob(
+  //     [JSON.stringify({ text: "dazar text 1" })],
+  //     { type: "application/json" }
+  //   );
 
-    const jsonBlob = new Blob(
-      [JSON.stringify({ text: "dazar text" })],
-      { type: "application/json" }
-    );
+  //   formData.append("request", jsonBlob);
+  //   const file1 = new File(
+  //     [await fetch("/Users/dazar/Downloads/_1.png").then(r => r.blob())],
+  //     "photo1.jpg"
+  //   );
 
-    formData.append("request", jsonBlob);
+  //   const file2 = new File(
+  //     [await fetch("/Users/dazar/Downloads/_2.png").then(r => r.blob())],
+  //     "photo2.png"
+  //   );
 
-    fetch("https://api.tippni.com/api/v1/tippni", {
-      method: "POST",
-      headers: {
-        Authorization: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkYXphcmFsZ29mcmFtZUBnbWFpbC5jb20iLCJpYXQiOjE3NjMzNzgyMzIsImV4cCI6MTc2MzQ2NDYzMn0.36FIr3HglLcl54aE7l2TRAJkTx6OAHi3z8z6NqOxsXg"
-      },
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(res => console.log("Response:", res))
-      .then(data => console.log("Response:", data))
-      .catch(err => console.error("Error:", err));
-  }
+  //   console.log('images => ',file1, file2);
+    
+  //   formData.append("files", file1);
+  //   formData.append("files", file2);
+
+  //   fetch("https://api.tippni.com/api/v1/tippni", {
+  //     method: "POST",
+  //     headers: {
+  //       Authorization: `Bearer ${session?.user?.token}`
+  //     },
+  //     body: formData
+  //   })
+  //     .then(res => res.json())
+  //     .then(data => console.log("Response:", data))
+  //     .catch(err => console.error("Error:", err));
+
+  // }
+  // const handlePost = async () => {
+  //   if (!tweetText.trim() && !imageFile) {
+  //     toast.error("Post cannot be empty");
+  //     return;
+  //   }
+  
+  //   try {
+  //     setIsPosting(true);
+  //     const formData = new FormData();
+
+  //     const jsonBlob = new Blob(
+  //       [JSON.stringify({ text: tweetText.trim() })],
+  //       { type: "application/json" }
+  //     );
+      
+  //     formData.append("request", jsonBlob);
+  
+  //     if (imageFile) {
+  //       formData.append("files", imageFile);
+  //     }
+      
+  //     console.log("📤 Posting Tippni FormData:", formData);
+  
+  //     const res = await fetch("https://api.tippni.com/api/v1/tippni", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: session?.user?.token
+  //           ? `Bearer ${session.user.token}`
+  //           : "",
+  //       },
+  //       body: formData,
+  //     });
+  
+  //     if (!res.ok) {
+  //       const error = await res.text();
+  //       console.error("❌ Tippni API Error:", error);
+  //       throw new Error(`Tippni failed: ${res.status}`);
+  //     }
+  
+  //     const data = await res.json();
+  //     console.log("✅ Tippni posted:", data);
+  //     toast.success("Tippni posted successfully!");
+  
+  //     setTweetText("");
+  //     setImageFile(null);
+  //     setImagePreview(null);
+  //     onOpenChange(false);
+  
+  //   } catch (err: any) {
+  //     console.error("❌ Tippni post error:", err);
+  //     toast.error(err?.message || "Failed to post Tippni");
+  //   } finally {
+  //     setIsPosting(false);
+  //   }
+  // };
+  const handlePost = async () => {
+    if (!tweetText.trim() && imageFile) {
+      toast.error("Image cannot be posted alone. Add text.");
+      return;
+    }
+  
+    if (!tweetText.trim() && !imageFile) {
+      toast.error("Post cannot be empty");
+      return;
+    }
+  
+    try {
+      setIsPosting(true);
+      const formData = new FormData();
+      const jsonBlob = new Blob(
+        [JSON.stringify({ text: tweetText.trim() })],
+        { type: "application/json" }
+      );
+      formData.append("request", jsonBlob);
+  
+      if (imageFile) {
+        formData.append("files", imageFile);
+      }
+  
+      const res = await fetch("https://api.tippni.com/api/v1/tippni", {
+        method: "POST",
+        headers: {
+          Authorization: session?.user?.token
+            ? `Bearer ${session.user.token}`
+            : "",
+        },
+        body: formData,
+      });
+  
+      if (!res.ok) {
+        const error = await res.text();
+        console.error("❌ Tippni API Error:", error);
+        throw new Error(`Tippni failed: ${res.status}`);
+      }
+  
+      const data = await res.json();
+      console.log("✅ Tippni posted:", data);
+      toast.success("Tippni posted successfully!");
+  
+      setTweetText("");
+      setImageFile(null);
+      setImagePreview(null);
+      onOpenChange(false);
+  
+    } catch (err: any) {
+      console.error("❌ Tippni post error:", err);
+      toast.error(err?.message || "Failed to post Tippni");
+    } finally {
+      setIsPosting(false);
+    }
+  };
+  
   const handleClose = () => {
     setTweetText("")
     setImageFile(null)

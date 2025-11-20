@@ -29,34 +29,31 @@ export default function HomePage() {
                     {/* <div className="sticky top-0 z-10 backdrop-blur"> */}
                         <div className="py-3">
                         <SearchBar />
-                        <div className="mt-3"><AvatarsRow /></div>
+                        <div className="mt-3 hidden"><AvatarsRow /></div>
                         </div>
                     </div>
             <>
                 {activePage === "home" && 
-                <>
-                    
                     <div className="py-4 space-y-6">
-                    <PostCard
-                    username="Alex Johnson"
-                    handle="@alexj"
-                    text="Just shipped a new design system update. Loving the consistency it brings!"
-                    imageSrc="/images/webDeveloper.png"
-                    />
-                    <PostCard
-                    username="Taylor Smith"
-                    handle="@taywrites"
-                    text="Writing is thinking. Draft often, publish when ready."
-                    imageSrc="/images/minimal-desk-notebook.jpg"
-                    />
-                    <PostCard
-                    username="Dev Collective"
-                    handle="@devco"
-                    text="Tip: Prefer semantic tokens over hard-coded colors for easier theming."
-                    imageSrc="/images/design-system-presentation.png"
-                    />
-                </div>
-                </>
+                        <PostCard
+                        username="Alex Johnson"
+                        handle="@alexj"
+                        text="Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings!"
+                        imageSrc="/images/webDeveloper.png"
+                        />
+                        <PostCard
+                        username="Taylor Smith"
+                        handle="@taywrites"
+                        text="Writing is thinking. Draft often, publish when ready."
+                        imageSrc="/images/minimal-desk-notebook.jpg"
+                        />
+                        <PostCard
+                        username="Dev Collective"
+                        handle="@devco"
+                        text="Tip: Prefer semantic tokens over hard-coded colors for easier theming."
+                        imageSrc="/images/design-system-presentation.png"
+                        />
+                    </div>
                 }
                 {activePage === "profile" && <ProfilePage />}
                 {activePage === "foryou" && <div>For You content here</div>}
@@ -65,8 +62,6 @@ export default function HomePage() {
                 {activePage === "settings" && <SettingsPage />}
             </>
             </main>
-
-            {/* Right Sidebar */}
             <aside className="sticky top-0 h-screen hidden lg:block col-span-3">
             <RightSidebar />
             </aside>

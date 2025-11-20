@@ -117,8 +117,8 @@ export default function ProfilePage() {
           ) : (
             <>
             <div className="sticky top-0 z-10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-            <ProfileHeader username={profile?.username || ''} />
-          </div>
+              <ProfileHeader username={profile?.username || ''} />
+            </div>
               <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-500 overflow-hidden hidden">
                 <Image width={100} height={100} src="/images/twitter-profile-cover.jpg" alt="Profile cover" className="w-full h-full object-cover" />
               </div>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               </div>
               <ProfileInfo setShowConnections={setShowConnections} />
               <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
-              <ProfilePosts tab={activeTab} />
+              <ProfilePosts tab={activeTab} profileId={profile.profileId!} />
             </>
           )}
           
