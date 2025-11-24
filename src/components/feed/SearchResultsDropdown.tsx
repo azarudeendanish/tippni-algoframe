@@ -85,7 +85,7 @@ export function SearchResultsDropdown({
   }
 
   return (
-    <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-2xl border border-border bg-modal shadow-lg">
+    <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-2xl border border-border bg-modal shadow-lg max-w-100 m-auto">
       {searchQuery.trim() === "" ? (
         // 🕑 Show recent searches
         <div className="p-4">

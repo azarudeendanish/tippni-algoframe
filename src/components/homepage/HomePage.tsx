@@ -35,13 +35,12 @@ const POST = [
 export default function HomePage() {
     const activePage = useSelector((state: RootState) => state.page.activePage)
     const [signup, setSignup] = useState(true)
-    const [posts, setPosts] = useState<any[]>([])
+    const [posts, setPosts] = useState<any[]>(POST)
     const [loading, setLoading] = useState(true)
     useEffect(() => {
         async function fetchContent() {
           try {
             const res = await api.get(`/api/v1/timeline/home`)
-    
             console.log("API Response:", res.data.length)
             console.log("API Response:", res.data)
             if(res.data && res.data.length >= 1){
@@ -55,7 +54,6 @@ export default function HomePage() {
             setLoading(false)
           }
         }
-        // setPosts(POST)
         fetchContent()
       }, [])
   return (
@@ -82,12 +80,13 @@ export default function HomePage() {
 
                         {!loading && posts.map((post) => (
                         <PostCard
-                            key={post.id}
-                            username={post.profile?.username}
-                            handle={`@${post.profile?.username}`}
-                            text={post.text}
-                            avatarUrl={post.profile?.avatarUrl}
-                            imageSrc={post.mediaUrls?.[0]}
+                            // key={post.id}
+                            // username={post.profile?.username}
+                            // handle={`@${post.profile?.username}`}
+                            // text={post.text}
+                            // avatarUrl={post.profile?.avatarUrl}
+                            // imageSrc={post.mediaUrls?.[0]}
+                            post={post}
                         />
                         ))}
                     </div>

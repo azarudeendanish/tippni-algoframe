@@ -207,15 +207,15 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
 
         {/* Stats */}
         <div className="flex gap-6 text-sm">
-          <div>
+          <div className="hidden">
             <span className="font-bold">0</span>
             <span className="text-muted-foreground ml-1">Post</span>
           </div>
-          <button onClick={() => setShowConnections("followers")}>
+          <button onClick={() => setShowConnections("followers")} className="hover:underline cursor-pointer">
             <span className="font-bold">{profile.followers}</span>
             <span className="text-muted-foreground ml-1">Followers</span>
           </button>
-          <button onClick={() => setShowConnections("following")}>
+          <button onClick={() => setShowConnections("following")} className="hover:underline cursor-pointer">
             <span className="font-bold">{profile.followees}</span>
             <span className="text-muted-foreground ml-1">Following</span>
           </button>
