@@ -9,6 +9,9 @@ import { useSession } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import EditProfileModal from "../modals/EditProfileModal"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store"
+import { Loader } from "../ui/loader"
 
 interface Profile {
   id: string
@@ -26,12 +29,14 @@ interface Profile {
 }
 
 interface ProfileInfoProps {
-  setShowConnections: (query: string) => void
+  setShowConnections: (v: "followers" | "following" | null) => void
 }
 
 export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
+  
+  const profile = useSelector((state: RootState) => state.profile.data)
   const { data: session, status } = useSession()
-  const [profile, setProfile] = useState<Profile | null>(null)
+  // const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -39,82 +44,58 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
 
 
   
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-  const fetchProfile = async () => {
-    try {
-      setLoading(true)
-      const res = await api.get("/api/v1/profiles/me")
-      setProfile(res.data.data || res.data)
-      toast.success("✅ Profile loaded successfully!")
-    } catch (error: any) {
-      console.error("Error fetching profile:", error)
-      toast.error(error.response?.data?.message || "Failed to fetch profile.")
-    } finally {
-      setLoading(false)
-    }
-  }
-  // ✅ Handle avatar upload
+
   const handleAvatarEditClick = () => {
     fileInputRef.current?.click()
   }
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  // const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0]
+  //   if (!file) return
 
-    if (file.size > 1024 * 1024) {
-      toast.error("File must be smaller than 1MB")
-      e.target.value = ""
-      return
-    }
+  //   if (file.size > 1024 * 1024) {
+  //     toast.error("File must be smaller than 1MB")
+  //     e.target.value = ""
+  //     return
+  //   }
 
-    const formData = new FormData()
-    formData.append("file", file)
-    console.log('image FormData', file);
+  //   const formData = new FormData()
+  //   formData.append("file", file)
+  //   console.log('image FormData', file);
     
-    try {
-      setIsUploading(true)
-      const res = await api.post("/api/v1/profiles/images/avatar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
+  //   try {
+  //     setIsUploading(true)
+  //     const res = await api.post("/api/v1/profiles/images/avatar", formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     })
 
-      await fetchProfile()
+  //     await fetchProfile()
 
-      // ✅ Force reload avatar from server (cache-bust)
-      setProfile((prev) =>
-        prev
-          ? { ...prev, avatarUrl: `${prev.avatarUrl}?t=${Date.now()}` }
-          : prev
-      )
-    } catch (err: any) {
-      console.error("Upload error:", err)
-      toast.error(err.response?.data?.message || "Failed to upload image.")
-    } finally {
-      setIsUploading(false)
-      e.target.value = ""
-    }
-  }
+  //     // ✅ Force reload avatar from server (cache-bust)
+  //     setProfile((prev) =>
+  //       prev
+  //         ? { ...prev, avatarUrl: `${prev.avatarUrl}?t=${Date.now()}` }
+  //         : prev
+  //     )
+  //   } catch (err: any) {
+  //     console.error("Upload error:", err)
+  //     toast.error(err.response?.data?.message || "Failed to upload image.")
+  //   } finally {
+  //     setIsUploading(false)
+  //     e.target.value = ""
+  //   }
+  // }
 
   const handleChangeBanner = async () => {
     toast.info("Edit profile modal coming soon…")
   }
 
-  if (loading) {
-    return (
-      <div className="px-4 py-6 text-sm text-muted-foreground flex justify-center items-center">
-        Loading profile...
-      </div>
-    )
-  }
-
   if (!profile) {
     return (
-      <div className="px-4 py-6 text-sm text-destructive">
-        Failed to load profile.
+      <div className="px-4 py-6 text-sm text-muted-foreground">
+        <Loader />
       </div>
     )
   }
@@ -153,7 +134,7 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleAvatarChange}
+              // onChange={handleAvatarChange}
             />
           </div>
 
@@ -198,7 +179,7 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
             </div>
           )}
           {profile.birthDate && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 hidden">
               <Calendar className="size-4" aria-hidden />
               <span>Born at {profile.birthDate}</span>
             </div>
@@ -221,12 +202,12 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
           </button>
         </div>
       </div>
-      <EditProfileModal
+      {/* <EditProfileModal
         open={editOpen}
         onOpenChange={setEditOpen}
         profile={profile}
         onProfileUpdated={fetchProfile}
-      />
+      /> */}
     </>
   )
 }

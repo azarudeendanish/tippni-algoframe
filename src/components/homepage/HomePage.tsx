@@ -87,6 +87,7 @@ export default function HomePage() {
                             // avatarUrl={post.profile?.avatarUrl}
                             // imageSrc={post.mediaUrls?.[0]}
                             post={post}
+                            key={post.id}
                         />
                         ))}
                     </div>
@@ -98,7 +99,7 @@ export default function HomePage() {
                 {activePage === "settings" && <SettingsPage />}
             </main>
             <aside className="sticky top-0 h-screen hidden lg:block col-span-3">
-            <RightSidebar />
+            <RightSidebar onSetSignup={setSignup} />
             </aside>
         </div>
         <MobileBottomNav />

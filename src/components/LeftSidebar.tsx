@@ -123,7 +123,7 @@ export default function LeftSidebar({onSetSignup}: LeftSidebarProps) {
           toast.success("👋 Logged out successfully!")
           onSetSignup(true) // return to AuthContainer flow if needed
         }}
-        className="w-50 rounded-full cursor-pointer p-2 bg-secondary text-primary border border-primary hover:bg-accent hover:text-white transition-all"
+        className="hidden w-50 rounded-full cursor-pointer p-2 bg-secondary text-primary border border-primary hover:bg-accent hover:text-white transition-all"
         size="lg"
       >
         Logout

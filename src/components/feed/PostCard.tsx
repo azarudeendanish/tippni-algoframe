@@ -61,19 +61,22 @@ export default function PostCard({ post }: PostCardProps) {
   async function toggleLike() {
     try {
       if (liked) {
-        // UNLIKE
+        // UNLIK
+        alert('unlike')
         await api.delete(`/api/v1/like/${postId}`);
         toast.warning('you unliked the post')
         setLiked(false);
         setLikes((prev) => prev - 1);
       } else {
         // LIKE
+        alert('like')
         await api.post(`/api/v1/like/${postId}`);
         toast.success('you liked the post')
         setLiked(true);
         setLikes((prev) => prev + 1);
       }
     } catch (err: unknown) {
+      alert('error')
       console.error("Like error:", err);
       const message =
       err instanceof Error
@@ -83,8 +86,7 @@ export default function PostCard({ post }: PostCardProps) {
     }
   }
   return (
-    <Card className="border-none shadow-none p-5 pb-0 rounded-xl" style={{ background: '#2AA3EF0A' }} key={postId}>
-      {/* Header */}
+    <Card className="border-none shadow-md p-5 pb-0 rounded-xl" style={{ background: '#2AA3EF0A' }} >
       <div className="flex items-start gap-3">
         <Avatar className="size-10">
           <AvatarImage src={avatarUrl || "/images/default-avatar.png"} alt={`${username} avatar`} />
@@ -109,24 +111,26 @@ export default function PostCard({ post }: PostCardProps) {
                   : "whitespace-pre-wrap line-clamp-3"
               }
             >
-              {post.text}
+              {post.text} 
             </p>
             {!expanded && isOverflowing && (
-              <button
+              <Button
                 onClick={() => setExpanded(true)}
-                className="text-accent text-xs font-semibold mt-1 hover:underline"
+                variant="link"
+                className="text-accent text-xs font-semibold mt-1 hover:underline px-0 cursor-pointer"
               >
                 Read more
-              </button>
+              </Button>
             )}
 
             {expanded && (
-              <button
+              <Button
                 onClick={() => setExpanded(false)}
-                className="text-accent text-xs font-semibold mt-1 hover:underline"
+                variant="link"
+                className="text-accent text-xs font-semibold mt-1 hover:underline px-0 cursor-pointer"
               >
                 Show less
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -150,10 +154,10 @@ export default function PostCard({ post }: PostCardProps) {
           <Action
             label="Favorite"
             icon={
-              <button onClick={toggleLike} className="flex items-center gap-1 cursor-pointer">
+              <Button onClick={toggleLike} className="flex items-center gap-1 cursor-pointer p-0" variant="link">
                 {liked ? <FilledHeartIcon /> : <HeartIcon stroke={svgStrokeColor} />}
                 <span className="text-xs">{likes}</span>
-              </button>
+              </Button>
             }
           />
           <Action label="Bookmark" icon={<BookmarkIcon stroke={svgStrokeColor} />} />
@@ -165,12 +169,12 @@ export default function PostCard({ post }: PostCardProps) {
 
 function Action({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button
-      className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-xs hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    <div
+      className="p-0 inline-flex items-center gap-2 rounded-md text-xs hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label={label}
     >
       {icon}
-    </button>
+    </div>
   )
 }
 

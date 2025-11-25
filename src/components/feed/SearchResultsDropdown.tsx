@@ -54,8 +54,8 @@ export function SearchResultsDropdown({
         const data = res.data?.content || res.data || []
 
         // Normalize the API data
-        const formatted = data.map((user: any) => ({
-          id: user.id,
+        const formatted = data.map((user: any, index: number) => ({
+          id: user.id ?? `user=${index}`,
           name: user.name || user.username || "Unknown User",
           username: user.username ? `${user.username}` : "",
           avatarUrl: user.avatarUrl,
