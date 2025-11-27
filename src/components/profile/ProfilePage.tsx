@@ -25,8 +25,6 @@ export default function ProfilePage() {
   const { data: myProfile, selectedUser, loading } = useSelector(
     (state: RootState) => state.profile
   )
-
-  console.log('search result selectedUser => ', selectedUser);
   
   // Decide which profile to show
   const profile = selectedUser || myProfile
@@ -81,7 +79,6 @@ export default function ProfilePage() {
       </div>
     )
   }
-  console.log('search result profile => ', profile);
   
   return (
     <main className="col-span-12 lg:col-span-6">

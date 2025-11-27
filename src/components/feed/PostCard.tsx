@@ -12,6 +12,12 @@ import { useTheme } from "next-themes"
 import { useEffect, useRef, useState } from "react"
 import { api } from "@/lib/axios"
 import { toast } from "sonner"
+import { Swiper, SwiperSlide } from "swiper/react"
+import "swiper/css"
+import "swiper/css/pagination"
+import { Pagination } from "swiper/modules"
+import "@/styles/swiper.css"
+
 
 type PostCardProps = {
   post: {
@@ -28,8 +34,6 @@ type PostCardProps = {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  console.log('post from PostCard => ', post);
-  
   const username = post.profile?.username || "Unknown"
   const handle = `@${username}`
   const avatarUrl = post.profile?.avatarUrl
@@ -88,7 +92,7 @@ export default function PostCard({ post }: PostCardProps) {
     }
   }
   return (
-    <Card className="border-none shadow-md p-5 pb-0 rounded-xl" style={{ background: '#2AA3EF0A' }} key={postId}>
+    <Card className="border-none shadow-md p-5 pb-3 rounded-xl gap-3" style={{ background: '#2AA3EF0A' }} key={postId}>
       <div className="flex items-start gap-3">
         <Avatar className="size-10">
           <AvatarImage src={avatarUrl || "/images/default-avatar.png"} alt={`${username} avatar`} />
@@ -137,52 +141,84 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         </div>
       </div>
+      <div className="px-6">
 
-      {/* Image */}
-      
-        <div className="px-6 mt-3">
-          {imageSrc && (
-            // <Image
-            //   width={100}
-            //   height={100}
-            //   src={imageSrc || ''}
-            //   alt="Post media"
-            //   className="w-full h-50 rounded-3xl"
-            // />
-            <Image
-              src={imageSrc}
-              alt="Post media"
-              width={2000}
-              height={1200}
-              quality={80}
-              sizes="(max-width: 480px) 100vw,
-                    (max-width: 768px) 100vw,
-                    (max-width: 1200px) 80vw,
-                    400px"
-              className="
+        {/* MULTI-IMAGE CAROUSEL */}
+        {(post.mediaUrls?.length ?? 0) > 1 && (
+          <Swiper
+            modules={[Pagination]}
+            pagination={{ clickable: true }}
+            spaceBetween={10}
+            className="rounded-3xl"
+          >
+            {post.mediaUrls?.map((url, index) => (
+              <SwiperSlide key={index}>
+                <Image
+                  src={url}
+                  alt={`Post media ${index + 1}`}
+                  width={2000}
+                  height={1200}
+                  quality={80}
+                  sizes="(max-width: 480px) 100vw,
+                        (max-width: 768px) 100vw,
+                        (max-width: 1200px) 80vw,
+                        400px"
+                  className="
+                    rounded-3xl w-full h-auto
+                    max-h-[300px]
+                    md:max-h-[300px]
+                    lg:max-h-[350px]
+                    object-cover
+                  "
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
+
+        {/* SINGLE IMAGE */}
+        {post.mediaUrls?.length === 1 && (
+          <Image
+            src={post.mediaUrls[0]}
+            alt="Post media"
+            width={2000}
+            height={1200}
+            quality={80}
+            sizes="(max-width: 480px) 100vw,
+                  (max-width: 768px) 100vw,
+                  (max-width: 1200px) 80vw,
+                  400px"
+            className="
               rounded-3xl w-full h-auto 
               max-h-[300px] 
               md:max-h-[300px] 
               lg:max-h-[350px] 
               object-cover
-              "
-            />
-          )}
-          <div className="flex items-center justify-between px-4 py-3 text-muted-foreground">
+            "
+          />
+        )}
+
+        {/* YOUR ICONS AREA */}
+        <div className="flex items-center justify-between px-4 py-3 text-muted-foreground">
           <Action label="Reply" icon={<ReplyIcon stroke={svgStrokeColor} />} />
           <Action label="Forward" icon={<ForwardIcon stroke={svgStrokeColor} />} />
           <Action
             label="Favorite"
             icon={
-              <div onClick={toggleLike} className="flex items-center gap-1 cursor-pointer p-0">
-                {liked ? <FilledHeartIcon stroke='red' /> : <HeartIcon stroke={svgStrokeColor} />}
+              <div
+                onClick={toggleLike}
+                className="flex items-center gap-1 cursor-pointer p-0"
+              >
+                {liked ? <FilledHeartIcon stroke="red" /> : <HeartIcon stroke={svgStrokeColor} />}
                 <span className="text-sm">{likes}</span>
               </div>
             }
           />
           <Action label="Bookmark" icon={<BookmarkIcon stroke={svgStrokeColor} />} />
-          </div>
         </div>
+
+        </div>
+
     </Card>
   )
 }

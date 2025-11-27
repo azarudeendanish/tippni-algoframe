@@ -1,0 +1,22 @@
+/* Default (light theme) */
+.swiper-pagination-bullet {
+    background: var(--color-border);
+    opacity: 0.6;
+  }
+  
+  .swiper-pagination-bullet-active {
+    background: var(--color-accent) !important; /* your accent color */
+    opacity: 1 !important;
+  }
+  
+  /* DARK THEME */
+  .dark .swiper-pagination-bullet {
+    background: var(--color-border);
+    opacity: 0.5;
+  }
+  
+  .dark .swiper-pagination-bullet-active {
+    background: var(--color-accent) !important;
+    opacity: 1 !important;
+  }
+  

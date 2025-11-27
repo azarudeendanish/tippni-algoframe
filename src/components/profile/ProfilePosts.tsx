@@ -18,10 +18,8 @@ export default function ProfilePosts({ tab, profileId }: ProfilePostsProps) {
     try {
       setLoading(true)
       const res = await api.get(`/api/v1/tippnis/user/${profileId}`)
-      console.log("Profile posts:", res.data)
       const list = res.data || []
       let filtered = list
-      console.log("Profile posts:", filtered);
       
       if (tab === "media") {
         filtered = list.filter((p: any) => p.mediaUrls?.length > 0)
@@ -122,8 +120,6 @@ export default function ProfilePosts({ tab, profileId }: ProfilePostsProps) {
 
   if (posts.length === 0)
     return <div className="py-10 text-center text-muted-foreground">No posts found.</div>
-
-  console.log('profile post data', posts);
   
   return (
     <div className="space-y-4 py-4">

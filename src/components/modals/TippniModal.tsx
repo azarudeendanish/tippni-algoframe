@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
+import imageCompression from "browser-image-compression";
 
 interface ComposeTweetModalProps {
   open: boolean
@@ -25,189 +26,71 @@ const toBase64 = (file: File): Promise<string> =>
 
 export default function TippniModal({ open, onOpenChange }: ComposeTweetModalProps) {
   const [tweetText, setTweetText] = useState("")
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isPosting, setIsPosting] = useState(false)
   const { data: session } = useSession()
-  console.log('token from Tippni modal', session?.user?.token);
   
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+  
+    const validFiles = files.filter((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is larger than 5MB`);
+        return false;
+      }
+      return true;
+    });
+  
+    setImageFiles((prev) => [...prev, ...validFiles]);
+  
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () =>
+        setImagePreviews((prev) => [...prev, reader.result as string]);
+      reader.readAsDataURL(file);
+    });
+  };
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File must be smaller than 5MB")
-      return
+  async function compressToUnder10KB(file: File) {
+    let resized = await imageCompression(file, {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 300, // force small resolution
+      initialQuality: 0.6,
+      useWebWorker: true,
+    });
+  
+    let quality = 0.5;
+  
+    while (resized.size > 10 * 1024 && quality > 0.05) {
+      resized = await imageCompression(resized, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 300,
+        initialQuality: quality,
+        useWebWorker: true,
+      });
+  
+      quality -= 0.1;
     }
-
-    setImageFile(file)
-    const reader = new FileReader()
-    reader.onloadend = () => setImagePreview(reader.result as string)
-    reader.readAsDataURL(file)
+  
+    return resized;
   }
-
-  const handlePostTippni = async () => {
-    if (!tweetText.trim() && !imageFile) {
-      toast.error("Post cannot be empty")
-      return
-    }
-
-    try {
-      setIsPosting(true)
-      let base64Images: string[] = []
-      if (imageFile) {
-        const base64 = await toBase64(imageFile)
-        base64Images = [base64]
-      }
-      const payload = {
-        request: {
-          text: tweetText.trim(),
-        },
-        files: base64Images,
-      }
-      const dummyPayload = {
-        request: {
-          text: 'dummyTest',
-        },
-        files: [],
-      }
-      console.log("📦 Sending Tippni payload:", dummyPayload)
-      const res = await fetch("https://api.tippni.com/api/v1/tippni", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: session?.user?.token
-            ? `Bearer ${session.user.token}`
-            : "",
-        },
-        body: JSON.stringify(dummyPayload),
-      })
-
-      if (!res.ok) {
-        const errorText = await res.text()
-        console.error("❌ Tippni post failed:", errorText)
-        throw new Error(`Request failed: ${res.status} ${res.statusText}`)
-      }
-
-      const data = await res.json()
-      console.log("✅ Tippni post success:", data)
-      toast.success("Tippni posted successfully!")
-
- 
-      setTweetText("")
-      setImageFile(null)
-      setImagePreview(null)
-      onOpenChange(false)
-    } catch (error: any) {
-      console.error("❌ Tippni post error:", error)
-      toast.error(error.message || "Failed to post Tippni.")
-    } finally {
-      setIsPosting(false)
-    }
+  async function formatSize(size: number) {
+    if (size < 1024) return `${size.toFixed(2)} KB`;
+    return `${(size / 1024).toFixed(2)} MB`;
   }
-  // const handlePost = async () => {
-  //   console.log('form works');
-    
-  //   const formData = new FormData();
-  //   const jsonBlob = new Blob(
-  //     [JSON.stringify({ text: "dazar text 1" })],
-  //     { type: "application/json" }
-  //   );
-
-  //   formData.append("request", jsonBlob);
-  //   const file1 = new File(
-  //     [await fetch("/Users/dazar/Downloads/_1.png").then(r => r.blob())],
-  //     "photo1.jpg"
-  //   );
-
-  //   const file2 = new File(
-  //     [await fetch("/Users/dazar/Downloads/_2.png").then(r => r.blob())],
-  //     "photo2.png"
-  //   );
-
-  //   console.log('images => ',file1, file2);
-    
-  //   formData.append("files", file1);
-  //   formData.append("files", file2);
-
-  //   fetch("https://api.tippni.com/api/v1/tippni", {
-  //     method: "POST",
-  //     headers: {
-  //       Authorization: `Bearer ${session?.user?.token}`
-  //     },
-  //     body: formData
-  //   })
-  //     .then(res => res.json())
-  //     .then(data => console.log("Response:", data))
-  //     .catch(err => console.error("Error:", err));
-
-  // }
-  // const handlePost = async () => {
-  //   if (!tweetText.trim() && !imageFile) {
-  //     toast.error("Post cannot be empty");
-  //     return;
-  //   }
-  
-  //   try {
-  //     setIsPosting(true);
-  //     const formData = new FormData();
-
-  //     const jsonBlob = new Blob(
-  //       [JSON.stringify({ text: tweetText.trim() })],
-  //       { type: "application/json" }
-  //     );
-      
-  //     formData.append("request", jsonBlob);
-  
-  //     if (imageFile) {
-  //       formData.append("files", imageFile);
-  //     }
-      
-  //     console.log("📤 Posting Tippni FormData:", formData);
-  
-  //     const res = await fetch("https://api.tippni.com/api/v1/tippni", {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: session?.user?.token
-  //           ? `Bearer ${session.user.token}`
-  //           : "",
-  //       },
-  //       body: formData,
-  //     });
-  
-  //     if (!res.ok) {
-  //       const error = await res.text();
-  //       console.error("❌ Tippni API Error:", error);
-  //       throw new Error(`Tippni failed: ${res.status}`);
-  //     }
-  
-  //     const data = await res.json();
-  //     console.log("✅ Tippni posted:", data);
-  //     toast.success("Tippni posted successfully!");
-  
-  //     setTweetText("");
-  //     setImageFile(null);
-  //     setImagePreview(null);
-  //     onOpenChange(false);
-  
-  //   } catch (err: any) {
-  //     console.error("❌ Tippni post error:", err);
-  //     toast.error(err?.message || "Failed to post Tippni");
-  //   } finally {
-  //     setIsPosting(false);
-  //   }
-  // };
   const handlePost = async () => {
-    if (!tweetText.trim() && imageFile) {
-      toast.error("Image cannot be posted alone. Add text.");
-      return;
-    }
-  
-    if (!tweetText.trim() && !imageFile) {
+    if (!tweetText.trim() && imageFiles.length === 0) {
       toast.error("Post cannot be empty");
       return;
     }
   
+    if (!tweetText.trim() && !imageFiles) {
+      toast.error("Post cannot be empty");
+      return;
+    }
+
     try {
       setIsPosting(true);
       const formData = new FormData();
@@ -216,11 +99,21 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
         { type: "application/json" }
       );
       formData.append("request", jsonBlob);
-  
-      if (imageFile) {
-        formData.append("files", imageFile);
+      if (imageFiles.length > 0) {
+        let summary = "📦 Compression Summary:\n\n";
+        for (const file of imageFiles) {
+          const original = await formatSize(file.size / 1024);
+      
+          const compressed = await compressToUnder10KB(file);
+      
+          const compressedSize = await formatSize(compressed.size / 1024);
+
+          summary += `• ${file.name}: ${original} → ${compressedSize}\n`;
+      
+          formData.append("files", compressed); // multiple files support
+        }
+        toast.info(summary, { duration: 10000 });
       }
-  
       const res = await fetch("https://api.tippni.com/api/v1/tippni", {
         method: "POST",
         headers: {
@@ -242,8 +135,8 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
       toast.success("Tippni posted successfully!");
   
       setTweetText("");
-      setImageFile(null);
-      setImagePreview(null);
+      setImageFiles([]);
+      setImagePreviews([]);
       onOpenChange(false);
   
     } catch (err: any) {
@@ -256,8 +149,8 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
   
   const handleClose = () => {
     setTweetText("")
-    setImageFile(null)
-    setImagePreview(null)
+    setImageFiles([])
+    setImagePreviews([])
     onOpenChange(false)
   }
 
@@ -296,24 +189,24 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
                 className="resize-none border-0 bg-transparent text-2xl placeholder:text-muted-foreground focus-visible:ring-0 p-0 min-h-24"
               />
 
-              {/* Image preview */}
-              {imagePreview && (
-                <div className="relative mt-4 rounded-2xl overflow-hidden bg-secondary">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-auto max-h-96 object-cover"
-                  />
-                  <button
-                    onClick={() => {
-                      setImagePreview(null)
-                      setImageFile(null)
-                    }}
-                    className="absolute top-2 left-2 rounded-full bg-black/50 p-2 hover:bg-black/70 transition"
-                    aria-label="Remove image"
-                  >
-                    <X className="size-5 text-white" />
-                  </button>
+          
+              {imagePreviews.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  {imagePreviews.map((preview, idx) => (
+                    <div key={idx} className="relative rounded-2xl overflow-hidden bg-secondary">
+                      <img src={preview} className="w-full h-auto object-cover" />
+
+                      <button
+                        onClick={() => {
+                          setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+                          setImageFiles((prev) => prev.filter((_, i) => i !== idx));
+                        }}
+                        className="absolute top-2 left-2 rounded-full bg-black/50 p-2 hover:bg-black/70"
+                      >
+                        <X className="size-5 text-white" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -325,6 +218,7 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
                       onChange={handleImageUpload}
                       className="hidden"
                       aria-label="Upload image"
@@ -337,7 +231,7 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
 
                 <Button
                   onClick={handlePost}
-                  disabled={isPosting || (!tweetText.trim() && !imageFile)}
+                  disabled={isPosting || (!tweetText.trim() && !imageFiles)}
                   size="lg"
                   className="rounded-full px-8 font-semibold bg-[var(--color-accent)] text-white hover:opacity-90 transition"
                 >
