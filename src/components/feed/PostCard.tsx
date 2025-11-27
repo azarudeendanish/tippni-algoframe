@@ -5,6 +5,12 @@
 import type React from "react"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
 import Image from "next/image"
@@ -104,9 +110,28 @@ export default function PostCard({ post }: PostCardProps) {
               <div className="text-sm font-bold truncate">{username}</div>
               <div className="text-xs text-muted-foreground truncate">{handle}</div>
             </div>
-            <Button variant="ghost" size="icon" aria-label="More options">
-              <MoreHorizontal className="size-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="More options">
+                  <MoreHorizontal className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-32 bg-secondary-solid text-primary-foreground border-none shadow-dropdown">
+                <DropdownMenuItem
+                  className="text-red-500 font-medium cursor-pointer"
+                  // onClick={() => handleDelete(postId)}
+                >
+                  Delete
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  Mute @{username}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer text-red-500">
+                  Block @{username}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="mt-1 text-sm leading-relaxed break-words">
             <p
