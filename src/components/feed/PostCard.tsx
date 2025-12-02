@@ -23,28 +23,36 @@ import "swiper/css"
 import "swiper/css/pagination"
 import { Pagination } from "swiper/modules"
 import "@/styles/swiper.css"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { useAppDispatch } from "@/hooks/useAppDispatch"
+import { deletePost } from "@/store/postSlice";
+import { Post } from "@/types/post"
+import DustDeleteWrapper from "../animations/DustDeleteWrapper"
+import ConfirmModal from "../common/ConfirmModal"
 
 
 type PostCardProps = {
-  post: {
-    id: number
-    text: string
-    mediaUrls?: string[]
-    isLiked?: boolean
-    likes?: number
-    profile?: {
-      username: string
-      avatarUrl?: string
-    }
-  }
+  post: Post
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const dispatch = useAppDispatch()
+  const currentUser = useSelector((state: RootState) => state.currentUser.user);
   const username = post.profile?.username || "Unknown"
   const handle = `@${username}`
   const avatarUrl = post.profile?.avatarUrl
   const imageSrc = post.mediaUrls?.[0]
   const postId = post.id
+  const profileId = post?.profile?.profileId
 
   const [expanded, setExpanded] = useState(false)
   const [isOverflowing, setIsOverflowing] = useState(false)
@@ -52,7 +60,12 @@ export default function PostCard({ post }: PostCardProps) {
 
   const [liked, setLiked] = useState(post.isLiked || false);
   const [likes, setLikes] = useState(post.likes || 0);
-  
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const isOwner = post.isBelongs;
+
   useEffect(() => {
     if (textRef.current) {
       const el = textRef.current
@@ -97,8 +110,39 @@ export default function PostCard({ post }: PostCardProps) {
       toast.error(message);
     }
   }
+  const openDeleteModal = () => {
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    try {
+      setDeleting(true);
+  
+      // close modal
+      setShowDeleteModal(false);
+  
+      // trigger dust delete
+      document.getElementById(`dust-trigger-btn-${postId}`)?.click();
+  
+      // wait for dust animation to finish
+      await new Promise((res) => setTimeout(res, 1800));
+  
+      // delete from redux
+      await dispatch(deletePost(postId)).unwrap();
+  
+      toast.success("Post deleted");
+    } catch (err) {
+      toast.error("Failed to delete post");
+    } finally {
+      setDeleting(false);
+    }
+  };
   return (
-    <Card className="border-none shadow-md p-5 pb-3 rounded-xl gap-3" style={{ background: '#2AA3EF0A' }} key={postId}>
+    <DustDeleteWrapper
+      postId={postId}
+      onFinish={() => dispatch(deletePost(postId))}
+    >
+      <Card className={`border-none shadow-md p-5 pb-3 rounded-xl gap-3`}  style={{ background: '#2AA3EF0A' }} key={postId}>
       <div className="flex items-start gap-3">
         <Avatar className="size-10">
           <AvatarImage src={avatarUrl || "/images/default-avatar.png"} alt={`${username} avatar`} />
@@ -118,18 +162,24 @@ export default function PostCard({ post }: PostCardProps) {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-32 bg-secondary-solid text-primary-foreground border-none shadow-dropdown">
+              {isOwner ? (
+                // ONLY SHOW DELETE IF THIS USER OWNS THE POST
                 <DropdownMenuItem
                   className="text-red-500 font-medium cursor-pointer"
-                  // onClick={() => handleDelete(postId)}
+                  onClick={openDeleteModal}
                 >
                   Delete
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  Mute @{username}
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer text-red-500">
-                  Block @{username}
-                </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem className="cursor-pointer">
+                    Mute @{username}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer text-red-500">
+                    Block @{username}
+                  </DropdownMenuItem>
+                </>
+              )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -245,6 +295,15 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
 
     </Card>
+    <ConfirmModal
+      open={showDeleteModal}
+      title="Delete post?"
+      description="This action cannot be undone. Are you sure you want to delete this post?"
+      onCancel={() => setShowDeleteModal(false)}
+      onConfirm={confirmDelete}
+      confirmText = 'Delete'
+    />
+    </DustDeleteWrapper>
   )
 }
 

@@ -1,3 +1,5 @@
+// src/components/LeftSidebar.tsx
+
 "use client"
 
 import { useState } from "react"

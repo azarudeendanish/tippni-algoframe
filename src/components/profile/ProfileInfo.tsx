@@ -114,7 +114,7 @@ export default function ProfileInfo({setShowConnections}: ProfileInfoProps) {
         {/* Avatar + Edit */}
         <div className="flex items-start justify-between -mt-20 mb-4">
           <div className="relative">
-            <Avatar className="size-32 border-3 border-background">
+            <Avatar className="size-32 border-3 border-accent">
               <AvatarImage
                 src={profile.avatarUrl || "/images/tippniLogo.jpg"}
                 alt={profile.username}

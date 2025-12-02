@@ -1,15 +1,19 @@
 import { useRouter } from "next/navigation"
 import { Button } from "./button";
 import { ArrowLeft } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setPage } from "@/store/pageSlice";
 
 export default function BackButton () {
+    const dispatch = useDispatch()
     const router = useRouter()
     const handleBack = () => {
-      if (window.history.length > 1) {
-        router.back()
+      // If user arrived from another page (navigation stack > 2)
+      if (typeof window !== "undefined" && window.history.state?.idx > 0) {
+        router.back();
       } else {
-        // No valid history → fallback to home
-        router.push("/")
+        dispatch(setPage("home"))
+        router.push("/");
       }
     }
     return (

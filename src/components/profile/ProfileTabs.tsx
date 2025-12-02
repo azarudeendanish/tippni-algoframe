@@ -14,25 +14,25 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
         <TabsList className="w-full justify-start rounded-none border-b border-gray-300 bg-transparent p-0 h-auto">
           <TabsTrigger
             value="posts"
-            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-accent data-[state=active]:bg-transparent cursor-pointer"
           >
             Posts
           </TabsTrigger>
           <TabsTrigger
             value="replies"
-            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-accent data-[state=active]:bg-transparent cursor-pointer"
           >
             Replies
           </TabsTrigger>
           <TabsTrigger
             value="media"
-            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-accent data-[state=active]:bg-transparent cursor-pointer"
           >
             Media
           </TabsTrigger>
           <TabsTrigger
             value="likes"
-            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-accent data-[state=active]:bg-transparent cursor-pointer"
           >
             Likes
           </TabsTrigger>

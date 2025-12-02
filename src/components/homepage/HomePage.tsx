@@ -8,54 +8,32 @@ import { RootState } from "@/store"
 import { useEffect, useState } from "react"
 import SearchBar from "../feed/SearchBar"
 import AvatarsRow from "../feed/AvatarRow"
-import PostCard from "../feed/PostCard"
 import ProfilePage from "../profile/ProfilePage"
 import SettingsPage from "../settings/SettingsPage"
 import RightSidebar from "../RightSidebar"
 import MobileBottomNav from "../MobileBottomNav"
-import { api } from "@/lib/axios"
-
-const POST = [
-    {
-        id: 1,
-        username:"Alex Johnson",
-        handle:"alexj",
-        text:"Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings! Just shipped a new design system update. Loving the consistency it brings!",
-        imageUrl:"/images/webDeveloper.png"
-    },
-    {
-        id: 2,
-        username:"Dev Collective",
-        handle:"devco",
-        text:"Tip: Prefer semantic tokens over hard-coded colors for easier theming.",
-        imageUrl:"/images/design-system-presentation.png"
-    }
-]
+import { useSession } from "next-auth/react"
+import { fetchCurrentUser } from "@/store/currentUserSlice"
+import { useAppDispatch } from "@/hooks/useAppDispatch"
+import { fetchHomeTimeline } from "@/store/timelineSlice"
+import HomePagePost from "./HomePagePost"
 
 export default function HomePage() {
+    const dispatch = useAppDispatch()
+    const { data: session, status } = useSession()
+    // console.log('session HomePage', session?.user.token);
+    // console.log('status HomePage', status);
+    
+    useEffect(() => {
+        if (session?.user.token && status === "authenticated") {
+            dispatch(fetchCurrentUser())
+            dispatch(fetchHomeTimeline())
+        }
+    }, [session, status])
+
     const activePage = useSelector((state: RootState) => state.page.activePage)
     const [signup, setSignup] = useState(true)
-    const [posts, setPosts] = useState<any[]>(POST)
-    const [loading, setLoading] = useState(true)
-    useEffect(() => {
-        async function fetchContent() {
-          try {
-            const res = await api.get(`/api/v1/timeline/home`)
-            console.log("API Response:", res.data.length)
-            console.log("API Response:", res.data)
-            if(res.data && res.data.length >= 1){
-                setPosts(res.data)
-            } else {
-                setPosts(POST)
-            }
-          } catch (err) {
-            console.error("Fetch posts error:", err)
-          } finally {
-            setLoading(false)
-          }
-        }
-        fetchContent()
-      }, [])
+
   return (
     <>
         <div className="grid grid-cols-12 gap-6 px-4 py-4">
@@ -70,28 +48,7 @@ export default function HomePage() {
                         <div className="mt-3 hidden"><AvatarsRow /></div>
                     </div>
                 </div>
-                {activePage === "home" && (
-                    <div className="py-4 space-y-6">
-                        {loading && <div>Loading posts...</div>}
-
-                        {!loading && posts.length === 0 && (
-                        <div>No posts available</div>
-                        )}
-
-                        {!loading && posts.map((post) => (
-                        <PostCard
-                            // key={post.id}
-                            // username={post.profile?.username}
-                            // handle={`@${post.profile?.username}`}
-                            // text={post.text}
-                            // avatarUrl={post.profile?.avatarUrl}
-                            // imageSrc={post.mediaUrls?.[0]}
-                            post={post}
-                            key={post.id}
-                        />
-                        ))}
-                    </div>
-                )}
+                {activePage === "home" && <HomePagePost /> }
                 {activePage === "profile" && <ProfilePage />}
                 {activePage === "foryou" && <div>For You content here</div>}
                 {activePage === "notification" && <div>Notifications here</div>}

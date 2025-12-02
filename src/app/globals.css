@@ -97,11 +97,24 @@ body {
   .border-border {
     border-color: var(--color-border);
   }
+  .border-accent {
+    border-color: var(--color-accent);
+  }
   .bg-modal{
     background-color: var(--color-bg);
   }
   .shadow-dropdown {
     box-shadow: var(--shadow-dropdown);
   }
+
+
+  /* state value */
+  .data-\[state\=active\]\:border-accent {
+    &[data-state="active"] {
+        border-bottom-color: var(--color-accent);
+    }
+  }
+
+
 }
 
