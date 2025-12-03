@@ -5,26 +5,19 @@
 import { useState } from "react"
 import { X, ImageIcon, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import imageCompression from "browser-image-compression";
+import { compressToUnder10KB, formatSize } from "@/utils/compressImage"
 
 interface ComposeTweetModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-
-// ✅ Convert file → Base64 string
-const toBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-  })
 
 export default function TippniModal({ open, onOpenChange }: ComposeTweetModalProps) {
   const [tweetText, setTweetText] = useState("")
@@ -55,33 +48,6 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
     });
   };
 
-  async function compressToUnder10KB(file: File) {
-    let resized = await imageCompression(file, {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 300, // force small resolution
-      initialQuality: 0.6,
-      useWebWorker: true,
-    });
-  
-    let quality = 0.5;
-  
-    while (resized.size > 10 * 1024 && quality > 0.05) {
-      resized = await imageCompression(resized, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 300,
-        initialQuality: quality,
-        useWebWorker: true,
-      });
-  
-      quality -= 0.1;
-    }
-  
-    return resized;
-  }
-  async function formatSize(size: number) {
-    if (size < 1024) return `${size.toFixed(2)} KB`;
-    return `${(size / 1024).toFixed(2)} MB`;
-  }
   const handlePost = async () => {
     if (!tweetText.trim() && imageFiles.length === 0) {
       toast.error("Post cannot be empty");
@@ -103,19 +69,22 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
       formData.append("request", jsonBlob);
       if (imageFiles.length > 0) {
         let summary = "📦 Compression Summary:\n\n";
+      
         for (const file of imageFiles) {
-          const original = await formatSize(file.size / 1024);
+          const original = formatSize(file.size);
       
           const compressed = await compressToUnder10KB(file);
       
-          const compressedSize = await formatSize(compressed.size / 1024);
-
+          const compressedSize = formatSize(compressed.size);
+      
           summary += `• ${file.name}: ${original} → ${compressedSize}\n`;
       
-          formData.append("files", compressed); // multiple files support
+          formData.append("files", compressed);
         }
+      
         toast.info(summary, { duration: 10000 });
       }
+      
       const res = await fetch("https://api.tippni.com/api/v1/tippni", {
         method: "POST",
         headers: {
@@ -160,15 +129,22 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl border border-border bg-[var(--color-bg)] text-primary p-0">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <VisuallyHidden>
+          <DialogTitle>Tippni Post</DialogTitle>
+        </VisuallyHidden>
+
+        <VisuallyHidden>
+          <DialogDescription>Create a new Tippni post</DialogDescription>
+        </VisuallyHidden>
+        <div className="flex items-center justify-center border-b border-border px-4 py-3">
           <button
             onClick={handleClose}
-            className="rounded-full hover:bg-secondary/50 p-2 transition"
+            className="rounded-full hover:bg-secondary/50 p-2 transition hidden"
             aria-label="Close"
           >
             <X className="size-5 text-primary" />
           </button>
-          <span className="text-sm font-semibold text-muted-foreground">
+          <span className="text-sm font-semibold text-muted-foreground text-center">
             Tippni Post
           </span>
           <div className="w-8" />

@@ -21,8 +21,6 @@ import HomePagePost from "./HomePagePost"
 export default function HomePage() {
     const dispatch = useAppDispatch()
     const { data: session, status } = useSession()
-    // console.log('session HomePage', session?.user.token);
-    // console.log('status HomePage', status);
     
     useEffect(() => {
         if (session?.user.token && status === "authenticated") {

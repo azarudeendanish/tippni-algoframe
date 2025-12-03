@@ -25,14 +25,6 @@ import { Pagination } from "swiper/modules"
 import "@/styles/swiper.css"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
 import { useAppDispatch } from "@/hooks/useAppDispatch"
 import { deletePost } from "@/store/postSlice";
 import { Post } from "@/types/post"

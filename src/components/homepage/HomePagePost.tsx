@@ -8,7 +8,7 @@ import { useEffect } from "react"
 import PostCard from "../feed/PostCard"
 import { useAppDispatch } from "@/hooks/useAppDispatch"
 import { fetchHomeTimeline } from "@/store/timelineSlice"
-import { Loader } from "../ui/loader"
+import { Loader } from "../common/loader"
 
 const POST = [
     {

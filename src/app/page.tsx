@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import ThemeToggle from "@/components/ThemeToggle";
 import HomePage from "@/components/homepage/HomePage";
 import AuthContainer from "@/components/auth/AuthContainer";
-import { Loader } from "@/components/ui/loader";
+import { Loader } from "@/components/common/loader";
 
 export default function Home() {
   const { data: session, status } = useSession()

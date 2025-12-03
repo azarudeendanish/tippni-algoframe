@@ -11,7 +11,7 @@ import { toast } from "sonner"
 import EditProfileModal from "../modals/EditProfileModal"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store"
-import { Loader } from "../ui/loader"
+import { Loader } from "../common/loader"
 import { useDispatch } from "react-redux"
 import { fetchMyProfile } from "@/store/profileSlice"
 

@@ -108,7 +108,7 @@ export default function LeftSidebar({onSetSignup}: LeftSidebarProps) {
 
           {/* Tweet button */}
           <div className="mt-6">
-            <Button className="w-full rounded-full bg-accent text-white" size="lg" onClick={() => setIsModalOpen(true)}>
+            <Button className="w-full rounded-full bg-accent text-white cursor-pointer" size="lg" onClick={() => setIsModalOpen(true)}>
               {/* <Feather className="mr-2 size-4 hidden" aria-hidden /> */}
               Tippni
             </Button>

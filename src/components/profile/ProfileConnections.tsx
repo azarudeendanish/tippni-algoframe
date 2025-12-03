@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
 import { api } from "@/lib/axios"
-import { Loader } from "../ui/loader"
+import { Loader } from "../common/loader"
 
 interface ProfileConnectionProps { 
     type: "followers" | "following", 

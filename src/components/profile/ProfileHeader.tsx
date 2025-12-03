@@ -1,6 +1,6 @@
 "use client"
 
-import BackButton from "../ui/BackButton"
+import BackButton from "../common/BackButton"
 
 interface ProfileHeaderProps {
   username: string
