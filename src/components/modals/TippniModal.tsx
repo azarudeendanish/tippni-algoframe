@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
-import imageCompression from "browser-image-compression";
 import { compressToUnder10KB, formatSize } from "@/utils/compressImage"
+import { useAppDispatch } from "@/hooks/useAppDispatch"
+import { createTippniPost } from "@/store/postSlice"
 
 interface ComposeTweetModalProps {
   open: boolean
@@ -25,6 +26,7 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isPosting, setIsPosting] = useState(false)
   const { data: session } = useSession()
+  const dispatch = useAppDispatch()
   
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -85,26 +87,11 @@ export default function TippniModal({ open, onOpenChange }: ComposeTweetModalPro
         toast.info(summary, { duration: 10000 });
       }
       
-      const res = await fetch("https://api.tippni.com/api/v1/tippni", {
-        method: "POST",
-        headers: {
-          Authorization: session?.user?.token
-            ? `Bearer ${session.user.token}`
-            : "",
-        },
-        body: formData,
-      });
-  
-      if (!res.ok) {
-        const error = await res.text();
-        console.error("❌ Tippni API Error:", error);
-        throw new Error(`Tippni failed: ${res.status}`);
-      }
-  
-      const data = await res.json();
-      console.log("✅ Tippni posted:", data);
+      const result = await dispatch(createTippniPost(formData)).unwrap();
+
       toast.success("Tippni posted successfully!");
-  
+
+      // Reset UI
       setTweetText("");
       setImageFiles([]);
       setImagePreviews([]);

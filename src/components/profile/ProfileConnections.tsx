@@ -209,7 +209,7 @@ export default function ProfileConnections({ type, onBack, username, profileId }
                 <div className="flex-1">
                   <p className="font-semibold">{user.name}</p>
                   <p className="text-sm text-muted-foreground">{user.email} 
-                    {user.followsYou && <span className="inline-block px-1 lg:mx-2 text-xs font-medium bg-gray-700 text-white rounded" style={{fontSize: '10px'}}>Follows you</span>}
+                    {user.followsYou && <span className="inline-block px-1 lg:mx-2 text-xs font-medium bg-gray-700 text-white rounded">Follows you</span>}
                   </p>
                   <p className="text-sm text-muted-foreground">{!user.followers ? '0' : user.followers} followers</p>
                 </div>

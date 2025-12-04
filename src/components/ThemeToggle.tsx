@@ -15,7 +15,6 @@ export default function ThemeToggle() {
     <Button
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       className="p-2 rounded-md bg-secondary text-primary border-none flex justify-center w-10 shadow-dropdown"
-      style={{borderColor: '#436475'}}
     >
       {theme === "light" ? "🌙 " : "☀️ "}
     </Button>

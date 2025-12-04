@@ -6,6 +6,7 @@ import profileReducer from "@/store/profileSlice"
 import currentUserReducer from "@/store/currentUserSlice"
 import timelineReducer from "@/store/timelineSlice"
 import postReducer from "@/store/postSlice"
+import repostReducer from "@/store/repostSlice"
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     currentUser: currentUserReducer,
     timeline: timelineReducer,
     post: postReducer,
+    repost: repostReducer,
   },
 })
 

@@ -1,3 +1,5 @@
+// src/types/post.ts
+
 export interface PostProfile {
     profileId: string;
     username: string;

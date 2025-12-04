@@ -4,6 +4,24 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "@/lib/axios";
 import { Post } from "@/types/post";
 
+export const createTippniPost = createAsyncThunk(
+  "post/createTippniPost",
+  async (formData: FormData, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/api/v1/tippni", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to post Tippni"
+      );
+    }
+  }
+);
+
+
 export const fetchUserPosts = createAsyncThunk(
     "post/fetchUserPosts",
     async (profileId: string, { rejectWithValue }) => {
@@ -67,6 +85,20 @@ const postSlice = createSlice({
         state.posts = action.payload; // set posts
       })
       .addCase(fetchUserPosts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      /* ---------------- CREATE POST ---------------- */
+      .addCase(createTippniPost.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createTippniPost.fulfilled, (state, action) => {
+        state.loading = false;
+      
+        // Prepend new post into feed
+        state.posts.unshift(action.payload);
+      })
+      .addCase(createTippniPost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
